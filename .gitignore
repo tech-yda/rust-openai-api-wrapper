@@ -3,3 +3,8 @@
 
 # Environment file (contains secrets)
 .env
+
+# Node.js / UI
+ui/node_modules/
+ui/.output/
+ui/dist/
