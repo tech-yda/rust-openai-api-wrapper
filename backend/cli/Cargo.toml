@@ -1,0 +1,20 @@
+[package]
+name = "cli"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+backend_core.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+dotenvy.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+
+# CLI引数パーサー
+clap = { version = "4", features = ["derive"] }
+# インタラクティブ入力
+rustyline = "15"
+# ファイルパス
+dirs = "6"

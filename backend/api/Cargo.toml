@@ -1,0 +1,27 @@
+[package]
+name = "api"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+backend_core.workspace = true
+tokio.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+dotenvy.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+axum.workspace = true
+sqlx.workspace = true
+uuid.workspace = true
+chrono.workspace = true
+
+[dev-dependencies]
+# テストフレームワーク
+axum-test = "16"
+# テスト用tower utilities
+tower = { version = "0.5", features = ["util"] }
+# HTTP types for testing
+http-body-util = "0.1"
+# 環境変数読み込み
+dotenvy = "0.15"

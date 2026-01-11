@@ -6,13 +6,12 @@ use axum::{
 use tracing::info;
 use uuid::Uuid;
 
-use crate::db::SessionRepository;
-use crate::error::AppError;
-use crate::models::{
+use backend_core::{AppError, OpenAIService, SessionRepository};
+use backend_core::models::{
     CreateSessionRequest, CreateSessionResponse, Message, SessionChatRequest, SessionChatResponse,
     SessionWithMessages,
 };
-use crate::services::OpenAIService;
+use crate::error::ApiError;
 
 /// アプリケーション共有状態
 #[derive(Clone)]
@@ -25,7 +24,7 @@ pub struct AppState {
 pub async fn create_session(
     State(state): State<AppState>,
     Json(request): Json<CreateSessionRequest>,
-) -> Result<Json<CreateSessionResponse>, AppError> {
+) -> Result<Json<CreateSessionResponse>, ApiError> {
     info!("Creating new session");
 
     let session = state
@@ -46,14 +45,14 @@ pub async fn create_session(
 pub async fn get_session(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
-) -> Result<Json<SessionWithMessages>, AppError> {
+) -> Result<Json<SessionWithMessages>, ApiError> {
     info!("Getting session: {}", id);
 
     let session = state
         .session_repo
         .get_session(id)
         .await?
-        .ok_or_else(|| AppError::NotFound("Session".to_string()))?;
+        .ok_or_else(|| ApiError::from(AppError::NotFound("Session".to_string())))?;
 
     let messages = state.session_repo.get_messages(id).await?;
 
@@ -65,7 +64,7 @@ pub async fn session_chat(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
     Json(request): Json<SessionChatRequest>,
-) -> Result<Json<SessionChatResponse>, AppError> {
+) -> Result<Json<SessionChatResponse>, ApiError> {
     info!("Session chat: {} - message: {}", id, &request.message);
 
     // セッションを取得
@@ -73,7 +72,7 @@ pub async fn session_chat(
         .session_repo
         .get_session(id)
         .await?
-        .ok_or_else(|| AppError::NotFound("Session".to_string()))?;
+        .ok_or_else(|| ApiError::from(AppError::NotFound("Session".to_string())))?;
 
     // 過去のメッセージを取得
     let history = state.session_repo.get_messages(id).await?;
@@ -134,7 +133,7 @@ pub async fn session_chat(
 pub async fn delete_session(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
-) -> Result<StatusCode, AppError> {
+) -> Result<StatusCode, ApiError> {
     info!("Deleting session: {}", id);
 
     let deleted = state.session_repo.delete_session(id).await?;
@@ -143,6 +142,6 @@ pub async fn delete_session(
         info!("Session deleted: {}", id);
         Ok(StatusCode::NO_CONTENT)
     } else {
-        Err(AppError::NotFound("Session".to_string()))
+        Err(ApiError::from(AppError::NotFound("Session".to_string())))
     }
 }

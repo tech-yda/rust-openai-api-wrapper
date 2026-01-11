@@ -1,11 +1,16 @@
-[package]
-name = "rust-openai-api-wrapper"
+[workspace]
+resolver = "2"
+members = [
+    "backend/core",
+    "backend/api",
+    "backend/cli",
+]
+
+[workspace.package]
 version = "0.1.0"
 edition = "2024"
 
-[dependencies]
-# Webフレームワーク
-axum = "0.8"
+[workspace.dependencies]
 # 非同期ランタイム
 tokio = { version = "1", features = ["full"] }
 # HTTPクライアント
@@ -27,11 +32,8 @@ sqlx = { version = "0.8", features = ["runtime-tokio", "postgres", "uuid", "chro
 uuid = { version = "1", features = ["v4", "serde"] }
 # 日時処理
 chrono = { version = "0.4", features = ["serde"] }
+# Webフレームワーク
+axum = "0.8"
 
-[dev-dependencies]
-# テストフレームワーク
-axum-test = "16"
-# テスト用tower utilities
-tower = { version = "0.5", features = ["util"] }
-# HTTP types for testing
-http-body-util = "0.1"
+# 内部クレート
+backend_core = { path = "backend/core" }

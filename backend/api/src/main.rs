@@ -1,10 +1,5 @@
-use rust_openai_api_wrapper::{
-    config::Config,
-    create_app,
-    db::SessionRepository,
-    handlers::AppState,
-    services::OpenAIService,
-};
+use api::{create_app, handlers::AppState};
+use backend_core::{Config, OpenAIService, SessionRepository};
 use sqlx::postgres::PgPoolOptions;
 use tracing::info;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -15,7 +10,7 @@ async fn main() {
     tracing_subscriber::registry()
         .with(
             tracing_subscriber::EnvFilter::try_from_default_env()
-                .unwrap_or_else(|_| "rust_openai_api_wrapper=info".into()),
+                .unwrap_or_else(|_| "api=info,core=info".into()),
         )
         .with(tracing_subscriber::fmt::layer())
         .init();
@@ -33,7 +28,7 @@ async fn main() {
     info!("Connected to database");
 
     // マイグレーション実行
-    sqlx::migrate!("./migrations")
+    sqlx::migrate!("../../migrations")
         .run(&pool)
         .await
         .expect("Failed to run migrations");

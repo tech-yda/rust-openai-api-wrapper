@@ -3,7 +3,7 @@
 //! テスト実行には PostgreSQL が必要です:
 //! ```bash
 //! make db  # または docker-compose up -d db
-//! cargo test
+//! cargo test -p api
 //! ```
 
 use axum::{
@@ -11,9 +11,8 @@ use axum::{
     http::{Request, StatusCode},
 };
 use http_body_util::BodyExt;
-use rust_openai_api_wrapper::{
-    create_app, db::SessionRepository, handlers::AppState, services::OpenAIService,
-};
+use api::{create_app, handlers::AppState};
+use backend_core::{OpenAIService, SessionRepository};
 use serde_json::{json, Value};
 use sqlx::postgres::PgPoolOptions;
 use tower::ServiceExt;
@@ -45,7 +44,7 @@ async fn create_test_state() -> Option<AppState> {
     };
 
     // マイグレーション実行
-    if sqlx::migrate!("./migrations").run(&pool).await.is_err() {
+    if sqlx::migrate!("../../migrations").run(&pool).await.is_err() {
         eprintln!("Warning: Could not run migrations. Skipping integration tests.");
         return None;
     }

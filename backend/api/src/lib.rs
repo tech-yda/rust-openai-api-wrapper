@@ -1,11 +1,9 @@
-// ライブラリクレートとしてモジュールを公開（テスト用）
+//! api - Webサーバークレート
+//!
+//! Axum を使用したHTTP APIサーバーを提供。
 
-pub mod config;
-pub mod db;
 pub mod error;
 pub mod handlers;
-pub mod models;
-pub mod services;
 
 use axum::{
     routing::{delete, get, post},

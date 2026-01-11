@@ -1,15 +1,15 @@
 use axum::{extract::State, Json};
 use tracing::info;
 
-use crate::error::AppError;
+use backend_core::models::{ChatRequest, ChatResponse};
+use crate::error::ApiError;
 use crate::handlers::AppState;
-use crate::models::{ChatRequest, ChatResponse};
 
 /// POST /chat ハンドラー
 pub async fn chat(
     State(state): State<AppState>,
     Json(request): Json<ChatRequest>,
-) -> Result<Json<ChatResponse>, AppError> {
+) -> Result<Json<ChatResponse>, ApiError> {
     info!("Chat request received");
 
     let response = state.openai.chat(request).await?;
