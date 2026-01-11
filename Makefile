@@ -41,8 +41,12 @@ dev-ui:
 up:
 	docker-compose up --build
 
-# コンテナ停止
+# 全サービス停止（ローカルプロセス + Docker）
 down:
+	@pkill -9 -f "target/debug/api" 2>/dev/null || true
+	@pkill -9 -f "vite" 2>/dev/null || true
+	@lsof -ti :3000 | xargs kill -9 2>/dev/null || true
+	@lsof -ti :8080 | xargs kill -9 2>/dev/null || true
 	docker-compose down
 
 # ビルド
