@@ -1,13 +1,9 @@
-use axum::{
-    Json,
-    extract::State,
-    http::StatusCode,
-    response::{IntoResponse, Response},
-};
+use axum::{extract::State, http::StatusCode, response::{IntoResponse, Response}, Json};
 use tracing::{error, info};
 
+use crate::handlers::AppState;
 use crate::models::{ChatRequest, ChatResponse};
-use crate::services::{OpenAIError, OpenAIService};
+use crate::services::OpenAIError;
 
 /// アプリケーションエラー型
 pub struct AppError(OpenAIError);
@@ -38,12 +34,12 @@ impl IntoResponse for AppError {
 
 /// POST /chat ハンドラー
 pub async fn chat(
-    State(openai): State<OpenAIService>,
+    State(state): State<AppState>,
     Json(request): Json<ChatRequest>,
 ) -> Result<Json<ChatResponse>, AppError> {
     info!("Chat request received");
 
-    let response = openai.chat(request).await?;
+    let response = state.openai.chat(request).await?;
 
     info!(
         "Chat response sent (tokens: {})",

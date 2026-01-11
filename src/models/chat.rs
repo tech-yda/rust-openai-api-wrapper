@@ -28,38 +28,55 @@ pub struct Usage {
 }
 
 // ========================================
-// OpenAI API 用の型定義（内部用）
+// OpenAI Responses API 用の型定義（内部用）
 // ========================================
 
-/// OpenAI API へのリクエスト
-#[derive(Serialize)]
-pub struct OpenAIRequest {
-    pub model: String,
-    pub messages: Vec<Message>,
-}
-
+/// メッセージ（input配列の要素）
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Message {
     pub role: String,
     pub content: String,
 }
 
-/// OpenAI API からのレスポンス
-#[derive(Deserialize)]
-pub struct OpenAIResponse {
-    pub choices: Vec<Choice>,
+/// OpenAI Responses API へのリクエスト
+#[derive(Serialize)]
+pub struct OpenAIRequest {
     pub model: String,
+    pub input: Vec<Message>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub instructions: Option<String>,
+}
+
+/// OpenAI Responses API からのレスポンス
+#[derive(Deserialize, Debug)]
+pub struct OpenAIResponse {
+    pub id: String,
+    pub model: String,
+    pub output: Vec<OutputItem>,
     pub usage: OpenAIUsage,
 }
 
-#[derive(Deserialize)]
-pub struct Choice {
-    pub message: Message,
+/// output配列の要素（type: "message" または "reasoning"）
+#[derive(Deserialize, Debug)]
+pub struct OutputItem {
+    /// アイテムの種類: "message"（公開出力）または "reasoning"（内部思考）
+    #[serde(rename = "type")]
+    pub item_type: String,
+    /// コンテンツ（messageタイプのみ存在）
+    #[serde(default)]
+    pub content: Vec<ContentItem>,
 }
 
-#[derive(Deserialize)]
+/// content配列の要素
+#[derive(Deserialize, Debug)]
+pub struct ContentItem {
+    #[serde(default)]
+    pub text: Option<String>,
+}
+
+#[derive(Deserialize, Debug)]
 pub struct OpenAIUsage {
-    pub prompt_tokens: u32,
-    pub completion_tokens: u32,
+    pub input_tokens: u32,
+    pub output_tokens: u32,
     pub total_tokens: u32,
 }

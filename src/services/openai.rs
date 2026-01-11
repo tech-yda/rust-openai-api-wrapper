@@ -3,14 +3,12 @@ use thiserror::Error;
 
 use crate::models::{ChatRequest, ChatResponse, Message, OpenAIRequest, OpenAIResponse, Usage};
 
-/// OpenAI API のエンドポイント
-const OPENAI_API_URL: &str = "https://api.openai.com/v1/chat/completions";
-/// 使用するモデル（2026年1月最新）
+/// OpenAI Responses API のエンドポイント
+const OPENAI_API_URL: &str = "https://api.openai.com/v1/responses";
+/// 使用するモデル（GPT-5.2 Instant）
 const MODEL: &str = "gpt-5.2-chat-latest";
 
 /// OpenAI サービスのエラー型
-/// `#[derive(Error)]` で std::error::Error を自動実装
-/// `#[error("...")]` でエラーメッセージを定義
 #[derive(Error, Debug)]
 pub enum OpenAIError {
     #[error("HTTP request failed: {0}")]
@@ -21,7 +19,6 @@ pub enum OpenAIError {
 }
 
 /// OpenAI API クライアント
-/// `Clone` を derive することで、複数のハンドラーで共有可能
 #[derive(Clone)]
 pub struct OpenAIService {
     client: Client,
@@ -37,29 +34,36 @@ impl OpenAIService {
         }
     }
 
-    /// Chat Completions API を呼び出す
+    /// Responses API を呼び出す（単発チャット）
     pub async fn chat(&self, request: ChatRequest) -> Result<ChatResponse, OpenAIError> {
-        // メッセージを構築
-        let mut messages = Vec::new();
-
-        // system_prompt があれば追加
-        if let Some(system) = request.system_prompt {
-            messages.push(Message {
-                role: "system".to_string(),
-                content: system,
-            });
-        }
-
-        // ユーザーメッセージを追加
-        messages.push(Message {
+        let input = vec![Message {
             role: "user".to_string(),
             content: request.message,
-        });
+        }];
 
-        // OpenAI API リクエストを構築
+        self.call_responses_api(input, request.system_prompt).await
+    }
+
+    /// 履歴を含めた Responses API を呼び出す
+    pub async fn chat_with_history(
+        &self,
+        messages: Vec<Message>,
+        instructions: Option<String>,
+    ) -> Result<ChatResponse, OpenAIError> {
+        self.call_responses_api(messages, instructions).await
+    }
+
+    /// Responses API を呼び出す（内部メソッド）
+    async fn call_responses_api(
+        &self,
+        input: Vec<Message>,
+        instructions: Option<String>,
+    ) -> Result<ChatResponse, OpenAIError> {
+        // Responses API リクエストを構築
         let openai_request = OpenAIRequest {
             model: MODEL.to_string(),
-            messages,
+            input,
+            instructions,
         };
 
         // API を呼び出し
@@ -80,20 +84,24 @@ impl OpenAIService {
         // レスポンスをパース
         let openai_response: OpenAIResponse = response.json().await?;
 
-        // レスポンスを変換
-        // `.first()` は最初の要素を Option で返す
-        let assistant_message = openai_response
-            .choices
-            .first()
-            .map(|c| c.message.content.clone())
+        // outputから"message"タイプのテキストを抽出
+        // 注意: "reasoning"（内部思考）は使用しない - "message"（公開出力）のみを使用
+        let response_text = openai_response
+            .output
+            .iter()
+            .filter(|item| item.item_type == "message")
+            .find_map(|item| {
+                item.content.first().and_then(|c| c.text.clone())
+            })
             .unwrap_or_default();
 
+        // レスポンスを変換
         Ok(ChatResponse {
-            response: assistant_message,
+            response: response_text,
             model: openai_response.model,
             usage: Usage {
-                prompt_tokens: openai_response.usage.prompt_tokens,
-                completion_tokens: openai_response.usage.completion_tokens,
+                prompt_tokens: openai_response.usage.input_tokens,
+                completion_tokens: openai_response.usage.output_tokens,
                 total_tokens: openai_response.usage.total_tokens,
             },
         })
