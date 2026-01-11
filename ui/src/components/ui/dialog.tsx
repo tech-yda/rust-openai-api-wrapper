@@ -1,6 +1,5 @@
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
-import { XIcon } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -36,7 +35,10 @@ function DialogOverlay({
     <DialogPrimitive.Overlay
       data-slot="dialog-overlay"
       className={cn(
-        "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50",
+        "fixed inset-0 z-50",
+        "bg-background/80 backdrop-blur-sm",
+        "data-[state=open]:animate-in data-[state=closed]:animate-out",
+        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
         className
       )}
       {...props}
@@ -58,18 +60,52 @@ function DialogContent({
       <DialogPrimitive.Content
         data-slot="dialog-content"
         className={cn(
-          "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 outline-none sm:max-w-lg",
+          "fixed top-[50%] left-[50%] z-50",
+          "w-full max-w-[calc(100%-2rem)] sm:max-w-lg",
+          "translate-x-[-50%] translate-y-[-50%]",
+          "bg-card border border-border",
+          "p-0 outline-none",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out",
+          "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+          "duration-200",
           className
         )}
         {...props}
       >
-        {children}
+        {/* Gradient border effect */}
+        <div className="absolute inset-0 gradient-border pointer-events-none" />
+
+        {/* Corner decorations */}
+        <div className="absolute top-0 left-0 w-4 h-4 border-l-2 border-t-2 border-foreground/30 -translate-x-[1px] -translate-y-[1px]" />
+        <div className="absolute top-0 right-0 w-4 h-4 border-r-2 border-t-2 border-foreground/30 translate-x-[1px] -translate-y-[1px]" />
+        <div className="absolute bottom-0 left-0 w-4 h-4 border-l-2 border-b-2 border-foreground/30 -translate-x-[1px] translate-y-[1px]" />
+        <div className="absolute bottom-0 right-0 w-4 h-4 border-r-2 border-b-2 border-foreground/30 translate-x-[1px] translate-y-[1px]" />
+
+        <div className="relative p-6">
+          {children}
+        </div>
+
         {showCloseButton && (
           <DialogPrimitive.Close
             data-slot="dialog-close"
-            className="ring-offset-background focus:ring-ring data-[state=open]:bg-accent data-[state=open]:text-muted-foreground absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus:ring-2 focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4"
+            className={cn(
+              "absolute top-4 right-4",
+              "w-8 h-8 flex items-center justify-center",
+              "border border-border",
+              "text-muted-foreground hover:text-foreground",
+              "hover:border-foreground hover:bg-foreground/5",
+              "transition-all duration-200",
+              "outline-none focus:border-foreground"
+            )}
           >
-            <XIcon />
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path
+                d="M2 2L10 10M10 2L2 10"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+            </svg>
             <span className="sr-only">Close</span>
           </DialogPrimitive.Close>
         )}
@@ -82,7 +118,10 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-header"
-      className={cn("flex flex-col gap-2 text-center sm:text-left", className)}
+      className={cn(
+        "flex flex-col gap-3 pb-4 border-b border-border mb-4",
+        className
+      )}
       {...props}
     />
   )
@@ -94,6 +133,7 @@ function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="dialog-footer"
       className={cn(
         "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+        "pt-4 border-t border-border mt-4",
         className
       )}
       {...props}
@@ -108,7 +148,10 @@ function DialogTitle({
   return (
     <DialogPrimitive.Title
       data-slot="dialog-title"
-      className={cn("text-lg leading-none font-semibold", className)}
+      className={cn(
+        "font-display text-xl tracking-[0.1em] gradient-text",
+        className
+      )}
       {...props}
     />
   )
@@ -121,7 +164,10 @@ function DialogDescription({
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn(
+        "text-xs text-muted-foreground tracking-wider",
+        className
+      )}
       {...props}
     />
   )

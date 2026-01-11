@@ -1,5 +1,7 @@
 # rust-openai-api-wrapper
 
+![Demo](ui/docs/demo.gif)
+
 OpenAI API を使ったチャットアプリケーション。Web UI、REST API、CLI の3つのインターフェースを提供。
 
 ## 機能
