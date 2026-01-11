@@ -1,18 +1,18 @@
 use axum::{
     extract::{Path, State},
     http::StatusCode,
-    response::{IntoResponse, Response},
     Json,
 };
-use tracing::{error, info};
+use tracing::info;
 use uuid::Uuid;
 
 use crate::db::SessionRepository;
+use crate::error::AppError;
 use crate::models::{
     CreateSessionRequest, CreateSessionResponse, Message, SessionChatRequest, SessionChatResponse,
     SessionWithMessages,
 };
-use crate::services::{OpenAIError, OpenAIService};
+use crate::services::OpenAIService;
 
 /// アプリケーション共有状態
 #[derive(Clone)]
@@ -21,49 +21,11 @@ pub struct AppState {
     pub session_repo: SessionRepository,
 }
 
-/// セッション関連のエラー
-pub enum SessionError {
-    NotFound,
-    Database(sqlx::Error),
-    OpenAI(OpenAIError),
-}
-
-impl IntoResponse for SessionError {
-    fn into_response(self) -> Response {
-        let (status, message) = match self {
-            SessionError::NotFound => (StatusCode::NOT_FOUND, "Session not found"),
-            SessionError::Database(e) => {
-                error!("Database error: {}", e);
-                (StatusCode::INTERNAL_SERVER_ERROR, "Database error")
-            }
-            SessionError::OpenAI(e) => {
-                error!("OpenAI error: {}", e);
-                (StatusCode::BAD_GATEWAY, "Failed to get AI response")
-            }
-        };
-
-        let body = serde_json::json!({ "error": message });
-        (status, Json(body)).into_response()
-    }
-}
-
-impl From<sqlx::Error> for SessionError {
-    fn from(e: sqlx::Error) -> Self {
-        SessionError::Database(e)
-    }
-}
-
-impl From<OpenAIError> for SessionError {
-    fn from(e: OpenAIError) -> Self {
-        SessionError::OpenAI(e)
-    }
-}
-
 /// POST /sessions - 新規セッション作成
 pub async fn create_session(
     State(state): State<AppState>,
     Json(request): Json<CreateSessionRequest>,
-) -> Result<Json<CreateSessionResponse>, SessionError> {
+) -> Result<Json<CreateSessionResponse>, AppError> {
     info!("Creating new session");
 
     let session = state
@@ -84,14 +46,14 @@ pub async fn create_session(
 pub async fn get_session(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
-) -> Result<Json<SessionWithMessages>, SessionError> {
+) -> Result<Json<SessionWithMessages>, AppError> {
     info!("Getting session: {}", id);
 
     let session = state
         .session_repo
         .get_session(id)
         .await?
-        .ok_or(SessionError::NotFound)?;
+        .ok_or_else(|| AppError::NotFound("Session".to_string()))?;
 
     let messages = state.session_repo.get_messages(id).await?;
 
@@ -103,7 +65,7 @@ pub async fn session_chat(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
     Json(request): Json<SessionChatRequest>,
-) -> Result<Json<SessionChatResponse>, SessionError> {
+) -> Result<Json<SessionChatResponse>, AppError> {
     info!("Session chat: {} - message: {}", id, &request.message);
 
     // セッションを取得
@@ -111,7 +73,7 @@ pub async fn session_chat(
         .session_repo
         .get_session(id)
         .await?
-        .ok_or(SessionError::NotFound)?;
+        .ok_or_else(|| AppError::NotFound("Session".to_string()))?;
 
     // 過去のメッセージを取得
     let history = state.session_repo.get_messages(id).await?;
@@ -172,7 +134,7 @@ pub async fn session_chat(
 pub async fn delete_session(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,
-) -> Result<StatusCode, SessionError> {
+) -> Result<StatusCode, AppError> {
     info!("Deleting session: {}", id);
 
     let deleted = state.session_repo.delete_session(id).await?;
@@ -181,6 +143,6 @@ pub async fn delete_session(
         info!("Session deleted: {}", id);
         Ok(StatusCode::NO_CONTENT)
     } else {
-        Err(SessionError::NotFound)
+        Err(AppError::NotFound("Session".to_string()))
     }
 }

@@ -203,6 +203,13 @@ async fn test_get_session_not_found() {
         .unwrap();
 
     assert_eq!(response.status(), StatusCode::NOT_FOUND);
+
+    // 構造化されたエラーレスポンスを検証
+    let body = response.into_body().collect().await.unwrap().to_bytes();
+    let json: Value = serde_json::from_slice(&body).unwrap();
+
+    assert_eq!(json["error"]["code"], "NOT_FOUND");
+    assert!(json["error"]["message"].as_str().unwrap().contains("not found"));
 }
 
 #[tokio::test]
