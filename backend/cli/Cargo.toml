@@ -11,10 +11,15 @@ serde_json.workspace = true
 dotenvy.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
+chrono.workspace = true
 
 # CLI引数パーサー
 clap = { version = "4", features = ["derive"] }
 # インタラクティブ入力
 rustyline = "15"
-# ファイルパス
-dirs = "6"
+# XDG準拠のパス取得
+directories = "5"
+# 設定ファイル
+toml = "0.8"
+# 色付き出力
+colored = "3"
