@@ -45,7 +45,7 @@ build:
 test:
 	docker-compose up -d db
 	@sleep 2
-	DATABASE_URL=postgres://postgres:postgres@localhost:5433/chat_app cargo test --workspace
+	DATABASE_URL=postgres://postgres:postgres@localhost:5433/rust_openai_api_wrapper cargo test --workspace
 
 # DBコンテナのみ起動
 db:
@@ -73,7 +73,7 @@ fmt-check:
 migrate:
 	docker-compose up -d db
 	@sleep 2
-	DATABASE_URL=postgres://postgres:postgres@localhost:5433/chat_app sqlx migrate run --source backend/core/src/db/migrations
+	DATABASE_URL=postgres://postgres:postgres@localhost:5433/rust_openai_api_wrapper sqlx migrate run --source backend/core/src/db/migrations
 
 # マイグレーション作成
 migrate-create:
@@ -86,8 +86,8 @@ db-reset:
 	docker-compose up -d db
 	@echo "Waiting for PostgreSQL to be ready..."
 	@sleep 3
-	DATABASE_URL=postgres://postgres:postgres@localhost:5433/chat_app sqlx migrate run --source backend/core/src/db/migrations
+	DATABASE_URL=postgres://postgres:postgres@localhost:5433/rust_openai_api_wrapper sqlx migrate run --source backend/core/src/db/migrations
 
 # sqlx準備（オフラインモード用）
 sqlx-prepare:
-	DATABASE_URL=postgres://postgres:postgres@localhost:5433/chat_app cargo sqlx prepare
+	DATABASE_URL=postgres://postgres:postgres@localhost:5433/rust_openai_api_wrapper cargo sqlx prepare

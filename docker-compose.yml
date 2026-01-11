@@ -4,7 +4,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: chat_app
+      POSTGRES_DB: rust_openai_api_wrapper
     ports:
       - "5433:5432"
     volumes:
@@ -21,9 +21,10 @@ services:
       dockerfile: backend/api/Dockerfile.dev
     ports:
       - "8080:8080"
+    env_file:
+      - backend/.env
     environment:
-      DATABASE_URL: postgres://postgres:postgres@db:5432/chat_app
-      OPENAI_API_KEY: ${OPENAI_API_KEY}
+      DATABASE_URL: postgres://postgres:postgres@db:5432/rust_openai_api_wrapper
       HOST: 0.0.0.0
       PORT: 8080
     volumes:

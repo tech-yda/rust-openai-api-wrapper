@@ -20,7 +20,7 @@ use tower::ServiceExt;
 /// テスト用のデータベースURLを取得
 fn get_test_database_url() -> String {
     std::env::var("DATABASE_URL")
-        .unwrap_or_else(|_| "postgres://postgres:postgres@localhost:5433/chat_app".to_string())
+        .unwrap_or_else(|_| "postgres://postgres:postgres@localhost:5433/rust_openai_api_wrapper".to_string())
 }
 
 /// テスト用のAppStateを作成
