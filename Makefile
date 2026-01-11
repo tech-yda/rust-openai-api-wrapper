@@ -1,10 +1,11 @@
-.PHONY: dev dev-ui up down build test db clean lint fmt migrate db-reset help
+.PHONY: dev dev-api dev-ui up down build test db clean lint fmt migrate db-reset help
 
 # デフォルトターゲット
 help:
 	@echo "Available commands:"
-	@echo "  make dev       - Start DB container and run API locally"
-	@echo "  make dev-ui    - Start UI dev server"
+	@echo "  make dev       - Start DB + API + UI (all in one)"
+	@echo "  make dev-api   - Start DB + API only"
+	@echo "  make dev-ui    - Start UI only"
 	@echo "  make up        - Start all containers"
 	@echo "  make down      - Stop all containers"
 	@echo "  make build     - Build release binary"
@@ -16,14 +17,23 @@ help:
 	@echo "  make migrate   - Run database migrations"
 	@echo "  make db-reset  - Reset database (drops all data)"
 
-# 開発環境起動（DBコンテナ + ローカルRust API）
+# 開発環境起動（DB + API + UI 全て起動）
 dev:
 	docker-compose up -d db
 	@echo "Waiting for PostgreSQL to be ready..."
 	@sleep 3
-	DATABASE_URL=postgres://postgres:postgres@localhost:5433/chat_app cargo run -p api
+	@echo "Starting API server on :8080 and UI on :3000..."
+	@DATABASE_URL=postgres://postgres:postgres@localhost:5433/chat_app PORT=8080 cargo run -p api & \
+	cd ui && pnpm dev
 
-# UI開発サーバー起動
+# API開発サーバーのみ起動
+dev-api:
+	docker-compose up -d db
+	@echo "Waiting for PostgreSQL to be ready..."
+	@sleep 3
+	DATABASE_URL=postgres://postgres:postgres@localhost:5433/chat_app PORT=8080 cargo run -p api
+
+# UI開発サーバーのみ起動
 dev-ui:
 	cd ui && pnpm dev
 

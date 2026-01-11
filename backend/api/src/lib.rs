@@ -10,10 +10,16 @@ use axum::{
     Router,
 };
 use handlers::AppState;
+use tower_http::cors::{Any, CorsLayer};
 
 /// アプリケーションのルーターを構築
 /// テストから利用可能にするために公開
 pub fn create_app(state: AppState) -> Router {
+    let cors = CorsLayer::new()
+        .allow_origin(Any)
+        .allow_methods(Any)
+        .allow_headers(Any);
+
     Router::new()
         .route("/", get(root))
         .route("/health", get(handlers::health_check))
@@ -22,6 +28,7 @@ pub fn create_app(state: AppState) -> Router {
         .route("/sessions/{id}", get(handlers::get_session))
         .route("/sessions/{id}", delete(handlers::delete_session))
         .route("/sessions/{id}/chat", post(handlers::session_chat))
+        .layer(cors)
         .with_state(state)
 }
 
