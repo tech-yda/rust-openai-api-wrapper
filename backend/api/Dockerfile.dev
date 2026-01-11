@@ -1,0 +1,20 @@
+# Development Dockerfile for API with hot reload
+FROM rust:1.92
+
+WORKDIR /app
+
+# Install cargo-watch for hot reload
+RUN cargo install cargo-watch
+
+# Copy all workspace files
+COPY Cargo.toml Cargo.lock ./
+COPY backend ./backend
+COPY migrations ./migrations
+
+# Build the project
+RUN cargo build -p api
+
+EXPOSE 8080
+
+# Run with cargo-watch for hot reload
+CMD ["cargo", "watch", "-x", "run -p api"]
