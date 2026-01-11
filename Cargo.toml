@@ -1,0 +1,23 @@
+[package]
+name = "rust-openai-api-wrapper"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+# Webフレームワーク
+axum = "0.8"
+# 非同期ランタイム
+tokio = { version = "1", features = ["full"] }
+# HTTPクライアント
+reqwest = { version = "0.12", features = ["json"] }
+# JSON シリアライズ/デシリアライズ
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# 環境変数
+dotenvy = "0.15"
+# ロギング
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+# エラーハンドリング
+anyhow = "1"
+thiserror = "2"
