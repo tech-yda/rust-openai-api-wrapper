@@ -15,7 +15,7 @@ Rust学習を目的としたプロジェクト。頻出パッケージ（axum, t
 
 ```bash
 # リポジトリをクローン
-git clone <repository-url>
+git clone https://github.com/tech-yda/rust-openai-api-wrapper.git
 cd rust-openai-api-wrapper
 
 # 環境変数を設定
