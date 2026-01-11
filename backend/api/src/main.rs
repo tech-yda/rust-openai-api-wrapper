@@ -28,7 +28,7 @@ async fn main() {
     info!("Connected to database");
 
     // マイグレーション実行
-    sqlx::migrate!("../../migrations")
+    sqlx::migrate!("../core/src/db/migrations")
         .run(&pool)
         .await
         .expect("Failed to run migrations");

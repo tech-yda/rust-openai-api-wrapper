@@ -21,9 +21,8 @@ RUN cargo build --release -p api
 # Remove dummy files
 RUN rm -rf backend
 
-# Copy actual source code
+# Copy actual source code (includes migrations in backend/core/src/db/migrations)
 COPY backend ./backend
-COPY migrations ./migrations
 
 # Touch files to rebuild with real source
 RUN touch backend/core/src/lib.rs backend/api/src/main.rs

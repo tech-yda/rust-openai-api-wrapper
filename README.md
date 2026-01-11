@@ -38,11 +38,10 @@ cargo run -p cli -- chat
 
 ```
 ├── backend/
-│   ├── core/     # 共有ライブラリ（モデル、サービス、DB）
+│   ├── core/     # 共有ライブラリ（モデル、サービス、DB、マイグレーション）
 │   ├── api/      # REST API サーバー
 │   └── cli/      # CLI ツール
 ├── ui/           # Web フロントエンド
-├── migrations/   # SQLマイグレーション
 └── docs/adr/     # 設計決定記録
 ```
 

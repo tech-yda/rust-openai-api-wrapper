@@ -73,12 +73,12 @@ fmt-check:
 migrate:
 	docker-compose up -d db
 	@sleep 2
-	DATABASE_URL=postgres://postgres:postgres@localhost:5433/chat_app sqlx migrate run
+	DATABASE_URL=postgres://postgres:postgres@localhost:5433/chat_app sqlx migrate run --source backend/core/src/db/migrations
 
 # マイグレーション作成
 migrate-create:
 	@read -p "Migration name: " name; \
-	sqlx migrate add $$name
+	sqlx migrate add --source backend/core/src/db/migrations $$name
 
 # DB初期化（開発用）
 db-reset:
@@ -86,7 +86,7 @@ db-reset:
 	docker-compose up -d db
 	@echo "Waiting for PostgreSQL to be ready..."
 	@sleep 3
-	DATABASE_URL=postgres://postgres:postgres@localhost:5433/chat_app sqlx migrate run
+	DATABASE_URL=postgres://postgres:postgres@localhost:5433/chat_app sqlx migrate run --source backend/core/src/db/migrations
 
 # sqlx準備（オフラインモード用）
 sqlx-prepare:

@@ -20,10 +20,10 @@
 ```
 rust-openai-api-wrapper/
 ├── Cargo.toml              # Workspace定義
-├── migrations/             # sqlx migrations
 ├── ui/                     # フロントエンド（別エコシステム）
 └── backend/
     ├── core/               # 共有ライブラリ
+    │   └── src/db/migrations/  # sqlx migrations
     ├── api/                # Webサーバー (Axum)
     └── cli/                # CLIツール
 ```

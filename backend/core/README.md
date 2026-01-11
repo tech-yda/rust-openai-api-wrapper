@@ -38,7 +38,8 @@ src/
 ├── services/
 │   └── openai.rs    # OpenAI API クライアント
 └── db/
-    └── repository.rs # SessionRepository
+    ├── repository.rs   # SessionRepository
+    └── migrations/     # sqlx migrations
 ```
 
 ## 依存クレート

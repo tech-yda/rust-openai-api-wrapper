@@ -6,10 +6,9 @@ WORKDIR /app
 # Install cargo-watch for hot reload
 RUN cargo install cargo-watch
 
-# Copy all workspace files
+# Copy all workspace files (migrations are in backend/core/src/db/migrations)
 COPY Cargo.toml Cargo.lock ./
 COPY backend ./backend
-COPY migrations ./migrations
 
 # Build the project
 RUN cargo build -p api

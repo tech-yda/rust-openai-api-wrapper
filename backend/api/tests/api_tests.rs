@@ -44,7 +44,7 @@ async fn create_test_state() -> Option<AppState> {
     };
 
     // マイグレーション実行
-    if sqlx::migrate!("../../migrations").run(&pool).await.is_err() {
+    if sqlx::migrate!("../core/src/db/migrations").run(&pool).await.is_err() {
         eprintln!("Warning: Could not run migrations. Skipping integration tests.");
         return None;
     }

@@ -28,7 +28,6 @@ services:
       PORT: 8080
     volumes:
       - ./backend:/app/backend
-      - ./migrations:/app/migrations
       - ./Cargo.toml:/app/Cargo.toml
       - ./Cargo.lock:/app/Cargo.lock
       - api_target:/app/target
