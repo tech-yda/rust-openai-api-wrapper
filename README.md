@@ -1,4 +1,4 @@
-# Chat App
+# rust-openai-api-wrapper
 
 OpenAI API を使ったチャットアプリケーション。Web UI、REST API、CLI の3つのインターフェースを提供。
 
@@ -13,8 +13,8 @@ OpenAI API を使ったチャットアプリケーション。Web UI、REST API�
 
 ```bash
 # 環境変数を設定
-cp .env.example .env
-# .env を編集して OPENAI_API_KEY を設定
+cp backend/.env.example backend/.env
+# backend/.env を編集して OPENAI_API_KEY を設定
 
 # 全サービス起動（DB + API + UI）
 make dev
@@ -27,22 +27,29 @@ make dev
 ## CLI 使用
 
 ```bash
+# ビルド
+cargo build -p cli --release
+
 # ワンショット質問
-cargo run -p cli -- ask "Hello"
+cli ask "Hello"
 
 # インタラクティブチャット
-cargo run -p cli -- chat
+cli chat
+
+# セッション一覧
+cli sessions list
 ```
 
 ## プロジェクト構成
 
 ```
 ├── backend/
-│   ├── core/     # 共有ライブラリ（モデル、サービス、DB、マイグレーション）
-│   ├── api/      # REST API サーバー
-│   └── cli/      # CLI ツール
-├── ui/           # Web フロントエンド
-└── docs/adr/     # 設計決定記録
+│   ├── .env.example  # 環境変数テンプレート
+│   ├── core/         # 共有ライブラリ（モデル、サービス、DB、マイグレーション）
+│   ├── api/          # REST API サーバー
+│   └── cli/          # CLI ツール
+├── ui/               # Web フロントエンド
+└── docs/adr/         # 設計決定記録
 ```
 
 詳細は各ディレクトリの README を参照：
@@ -60,6 +67,7 @@ make clean     # クリーンアップ（ボリューム含む）
 make test      # テスト実行
 make lint      # Clippy
 make fmt       # フォーマット
+make migrate   # マイグレーション実行
 ```
 
 ## 技術スタック
@@ -71,7 +79,3 @@ make fmt       # フォーマット
 | Database | PostgreSQL |
 | AI | OpenAI Responses API |
 | Dev | Docker Compose |
-
-## ライセンス
-
-MIT
