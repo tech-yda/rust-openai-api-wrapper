@@ -1,4 +1,4 @@
-.PHONY: dev up down build test lint fmt migrate db-reset help
+.PHONY: dev up down build test db clean lint fmt migrate db-reset help
 
 # デフォルトターゲット
 help:
@@ -7,7 +7,9 @@ help:
 	@echo "  make up        - Start all containers"
 	@echo "  make down      - Stop all containers"
 	@echo "  make build     - Build release binary"
-	@echo "  make test      - Run tests"
+	@echo "  make test      - Run tests (requires DB)"
+	@echo "  make db        - Start DB container only"
+	@echo "  make clean     - Stop containers and remove volumes"
 	@echo "  make lint      - Run clippy"
 	@echo "  make fmt       - Format code"
 	@echo "  make migrate   - Run database migrations"
@@ -32,9 +34,19 @@ down:
 build:
 	cargo build --release
 
-# テスト
+# テスト（DBが必要）
 test:
+	docker-compose up -d db
+	@sleep 2
 	cargo test
+
+# DBコンテナのみ起動
+db:
+	docker-compose up -d db
+
+# クリーンアップ
+clean:
+	docker-compose down -v
 
 # Lint
 lint:

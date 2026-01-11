@@ -1,18 +1,10 @@
-// モジュール宣言
-mod config;
-mod db;
-mod handlers;
-mod models;
-mod services;
-
-use axum::{
-    routing::{delete, get, post},
-    Router,
+use rust_openai_api_wrapper::{
+    config::Config,
+    create_app,
+    db::SessionRepository,
+    handlers::AppState,
+    services::OpenAIService,
 };
-use config::Config;
-use db::SessionRepository;
-use handlers::AppState;
-use services::OpenAIService;
 use sqlx::postgres::PgPoolOptions;
 use tracing::info;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -59,16 +51,7 @@ async fn main() {
     };
 
     // ルーター設定
-    let app = Router::new()
-        .route("/", get(root))
-        .route("/health", get(handlers::health_check))
-        .route("/chat", post(handlers::chat))
-        // セッション関連エンドポイント
-        .route("/sessions", post(handlers::create_session))
-        .route("/sessions/{id}", get(handlers::get_session))
-        .route("/sessions/{id}", delete(handlers::delete_session))
-        .route("/sessions/{id}/chat", post(handlers::session_chat))
-        .with_state(app_state);
+    let app = create_app(app_state);
 
     let addr = config.server_addr();
     let listener = tokio::net::TcpListener::bind(&addr)
@@ -86,8 +69,4 @@ async fn main() {
     info!("  POST   /sessions/{{id}}/chat - Chat within session");
 
     axum::serve(listener, app).await.unwrap();
-}
-
-async fn root() -> &'static str {
-    "Hello, Rust!"
 }
