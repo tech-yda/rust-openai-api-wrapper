@@ -1,9 +1,10 @@
-.PHONY: dev up down build test db clean lint fmt migrate db-reset help
+.PHONY: dev dev-ui up down build test db clean lint fmt migrate db-reset help
 
 # デフォルトターゲット
 help:
 	@echo "Available commands:"
-	@echo "  make dev       - Start DB container and run app locally"
+	@echo "  make dev       - Start DB container and run API locally"
+	@echo "  make dev-ui    - Start UI dev server"
 	@echo "  make up        - Start all containers"
 	@echo "  make down      - Stop all containers"
 	@echo "  make build     - Build release binary"
@@ -15,12 +16,16 @@ help:
 	@echo "  make migrate   - Run database migrations"
 	@echo "  make db-reset  - Reset database (drops all data)"
 
-# 開発環境起動（DBコンテナ + ローカルRust）
+# 開発環境起動（DBコンテナ + ローカルRust API）
 dev:
 	docker-compose up -d db
 	@echo "Waiting for PostgreSQL to be ready..."
 	@sleep 3
-	DATABASE_URL=postgres://postgres:postgres@localhost:5433/chat_app cargo run
+	DATABASE_URL=postgres://postgres:postgres@localhost:5433/chat_app cargo run -p api
+
+# UI開発サーバー起動
+dev-ui:
+	cd ui && pnpm dev
 
 # 全てコンテナで起動
 up:
@@ -32,13 +37,13 @@ down:
 
 # ビルド
 build:
-	cargo build --release
+	cargo build --workspace --release
 
 # テスト（DBが必要）
 test:
 	docker-compose up -d db
 	@sleep 2
-	cargo test
+	cargo test --workspace
 
 # DBコンテナのみ起動
 db:
@@ -50,7 +55,7 @@ clean:
 
 # Lint
 lint:
-	cargo clippy -- -D warnings
+	cargo clippy --workspace -- -D warnings
 
 # フォーマット
 fmt:
